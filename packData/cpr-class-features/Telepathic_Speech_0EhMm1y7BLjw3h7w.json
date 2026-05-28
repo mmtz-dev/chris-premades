@@ -37,9 +37,7 @@
           "showIcon": false,
           "durationExpression": "",
           "macroRepeat": "none",
-          "specialDuration": [
-            "None"
-          ]
+          "specialDuration": []
         },
         "dnd5e": {
           "riders": {

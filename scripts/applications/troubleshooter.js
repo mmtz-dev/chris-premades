@@ -25,7 +25,6 @@ let names = {
     socketlib: 'Socketlib',
     templatemacro: 'Template Macro',
     'tidy5e-sheet': 'Tidy 5e Sheet',
-    'times-up': 'Times Up',
     'token-attacher': 'Token Attacher',
     'visual-active-effects': 'Visual Active Effects',
     warpgate: 'Warpgate',

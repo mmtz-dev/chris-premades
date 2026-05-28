@@ -1,3 +1,15 @@
+# 1.6.0 Release:
+## Update Notes:
+- **Foundry V14 compatibility.** This release targets Foundry V14 with dnd5e 5.3.3–5.4.99, DAE 14.0.7+ (the release that introduced `flags.dae.specialDuration` → `duration.expiry` auto-migration), Midi-QOL 14.0.7+, and socketlib 1.1.2+.
+- **Times-Up dependency removed.** DAE v14 absorbed Times-Up's role: per the DAE 14.0.6 changelog, "all time/turn start/end expiry is handled by core foundry and not dae. Dae enhances core foundry to allow you to modify which combatants turn is recorded for turn start/end effect expiry." DAE 14.0.7 auto-migrates legacy `flags.dae.specialDuration` values (`turnStart`, `turnEnd`, `turnStartSource`, `turnEndSource`, `combatEnd`) into native `duration.expiry` on effect create.
+- **Soak-tested across 191 Active Effect documents** with non-empty `specialDuration` arrays, spanning the 36-value vocabulary CPR emits. The migration breakdown is: ~117 documents auto-migrated by DAE v14, ~9 vocabulary values resolved through dnd5e core hooks (rest, condition, save, skill, HP, encumbrance, speed), ~17 values resolved through Midi-QOL v14 workflow events.
+- Normalized 2 effect documents that used the `"None"` sentinel as a `specialDuration` placeholder to empty arrays (Telepathic Speech, Haunt Creature: Reaper Spirit).
+- Removed the cosmetic `times-up` entry from the troubleshooter module-name dictionary.
+
+## API Update Notes
+- `module-template.json` and `module-dev.json` no longer list `times-up` under `relationships.requires`. Module authors layering on top of CPR should expect Times-Up to be absent on V14 — read `duration.expiry` instead of `flags.dae.specialDuration` for new content.
+- `.github/workflows/main.yml` now publishes to the Foundry package registry with `compatibility: {"minimum": "14", "verified": "14.363", "maximum": "14"}`.
+
 # 1.5.35 Release:
 ## Update Notes:
 - This is not a V14 update. An update for V14 is still a work in progress.
