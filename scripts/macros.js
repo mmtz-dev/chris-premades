@@ -531,6 +531,8 @@ export {cleanFinish} from './macros/2024/classFeatures/pugilist/squaredCircle/cl
 export {groundwork} from './macros/2024/classFeatures/pugilist/squaredCircle/groundwork.js';
 export {heavyweight} from './macros/2024/classFeatures/pugilist/squaredCircle/heavyweight.js';
 export {meatShield} from './macros/2024/classFeatures/pugilist/squaredCircle/meatShield.js';
+// Sorcerer
+export {carefulSpell, distantSpell, empoweredSpell, extendedSpell, heightenedSpell, quickenedSpell, seekingSpell, subtleSpell, transmutedSpell} from './macros/2024/classFeatures/sorcerer/metamagic.js';
 // Wizard
 export {arcaneRecovery} from './macros/2024/classFeatures/wizard/arcaneRecovery.js';
 export {memorizeSpell} from './macros/2024/classFeatures/wizard/memorizeSpell.js';
