@@ -244,7 +244,7 @@ async function useExtended({workflow}) {
 }
 async function useHeightened({workflow}) {
     let sorcPoints = getSorceryPoints(workflow.actor);
-    if (!sorcPoints || sorcPoints.system.uses.value < 3) {
+    if (!sorcPoints || sorcPoints.system.uses.value < 2) {
         genericUtils.notify('CHRISPREMADES.Macros.Metamagic.NotEnough', 'info');
         return;
     }
@@ -254,7 +254,7 @@ async function useHeightened({workflow}) {
     }
     validSpells = validSpells.sort((a, b) => a.name.localeCompare(b.name, 'en', {sensitivity: 'base'}));
     validSpells = validSpells.sort((a, b) => a.system.level - b.system.level);
-    let selection = await dialogUtils.selectDocumentDialog(workflow.item.name, genericUtils.format('CHRISPREMADES.Macros.Metamagic.Which', {cost: 3, plural: 's'}), validSpells, {
+    let selection = await dialogUtils.selectDocumentDialog(workflow.item.name, genericUtils.format('CHRISPREMADES.Macros.Metamagic.Which', {cost: 2, plural: 's'}), validSpells, {
         showSpellLevel: true,
         addNoneDocument: true
     });
@@ -274,7 +274,7 @@ async function useHeightened({workflow}) {
     effectUtils.addMacro(effectData, 'midi.actor', ['heightenedSpell']);
     let effect = await effectUtils.createEffect(workflow.actor, effectData, {identifier: 'metamagic'});
     if (!effect) return;
-    await genericUtils.update(sorcPoints, {'system.uses.spent': sorcPoints.system.uses.spent + 3});
+    await genericUtils.update(sorcPoints, {'system.uses.spent': sorcPoints.system.uses.spent + 2});
     await workflowUtils.completeItemUse(selection);
     if (effect) await genericUtils.remove(effect);
 }
@@ -345,12 +345,12 @@ async function useQuickened({workflow}) {
 async function attackSeeking({trigger: {entity: item}, workflow}) {
     if (!workflow.targets.size || workflow.item.type !== 'spell') return;
     let sorcPoints = getSorceryPoints(workflow.actor);
-    if (!sorcPoints || sorcPoints.system.uses.value < 2) return;
+    if (!sorcPoints || sorcPoints.system.uses.value < 1) return;
     let attackTotal = workflow.attackTotal;
     if (Array.from(workflow.targets).every(i => i.actor?.system.attributes.ac.value <= attackTotal)) return;
-    let selection = await dialogUtils.confirm(item.name, genericUtils.format('CHRISPREMADES.Dialog.Missed', {attackTotal, itemName: item.name + '(2 ' + sorcPoints.name + ')'}));
+    let selection = await dialogUtils.confirm(item.name, genericUtils.format('CHRISPREMADES.Dialog.Missed', {attackTotal, itemName: item.name + '(1 ' + sorcPoints.name + ')'}));
     if (!selection) return;
-    await genericUtils.update(sorcPoints, {'system.uses.spent': sorcPoints.system.uses.spent + 2});
+    await genericUtils.update(sorcPoints, {'system.uses.spent': sorcPoints.system.uses.spent + 1});
     let newAttackRoll = await new Roll(workflow.attackRoll.formula, workflow.attackRoll.data, workflow.attackRoll.options).evaluate();
     await workflow.setAttackRoll(newAttackRoll);
 }
