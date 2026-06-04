@@ -448,6 +448,37 @@ async function useTransmuted({workflow}) {
     let newItem = selection.clone(createUpdateItem(selection, damageTypeToChange, newDamageType), {keepId: true});
     await workflowUtils.completeItemUse(newItem);
 }
+async function useTwinned({workflow}) {
+    let sorcPoints = getSorceryPoints(workflow.actor);
+    if (!sorcPoints?.system.uses.value) {
+        genericUtils.notify('CHRISPREMADES.Macros.Metamagic.NotEnough', 'info');
+        return;
+    }
+    // PHB 2024: a spell that targets only one creature and isn't a self-range spell.
+    let validSpells = actorUtils.getCastableSpells(workflow.actor).filter(i => i.system.target.affects.count === 1 && !i.system.target.template.count && i.system.target.affects.type !== 'self');
+    if (!validSpells.length) {
+        genericUtils.notify('CHRISPREMADES.Macros.Metamagic.NoValid', 'info');
+    }
+    validSpells = validSpells.sort((a, b) => a.name.localeCompare(b.name, 'en', {sensitivity: 'base'}));
+    validSpells = validSpells.sort((a, b) => a.system.level - b.system.level);
+    let selection = await dialogUtils.selectDocumentDialog(workflow.item.name, genericUtils.format('CHRISPREMADES.Macros.Metamagic.Which', {cost: 1, plural: ''}), validSpells, {
+        showSpellLevel: true,
+        addNoneDocument: true
+    });
+    if (!selection) return;
+    await genericUtils.update(sorcPoints, {'system.uses.spent': sorcPoints.system.uses.spent + 1});
+    let newItem = selection.clone({'system.target.affects.count': 2}, {keepId: true});
+    let shouldConsumeSlot = newItem.system.level && !['atwill', 'innate', 'ritual'].includes(newItem.system.method);
+    let shouldConsumeUsage = newItem.system.hasLimitedUses;
+    workflowUtils.syntheticItemRoll(newItem, Array.from(workflow.targets), {
+        options: {
+            configureDialog: (shouldConsumeSlot || shouldConsumeUsage) ? true : null
+        }, config: {
+            consumeSpellSlot: shouldConsumeSlot ? true : null,
+            consumeUsage: shouldConsumeUsage ? true : null
+        }
+    });
+}
 export let carefulSpell = {
     name: 'Careful Spell',
     rules: 'modern',
@@ -592,6 +623,20 @@ export let transmutedSpell = {
             {
                 pass: 'rollFinished',
                 macro: useTransmuted,
+                priority: 50
+            }
+        ]
+    }
+};
+export let twinnedSpell = {
+    name: 'Twinned Spell',
+    rules: 'modern',
+    version: '1.6.0',
+    midi: {
+        item: [
+            {
+                pass: 'rollFinished',
+                macro: useTwinned,
                 priority: 50
             }
         ]

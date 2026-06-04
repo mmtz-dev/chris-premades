@@ -17,7 +17,10 @@ const metamagics = [
     { name: 'Quickened Spell',   id: 'QuickenedSpl24Id', identifier: 'quickened-spell',   cprId: 'quickenedSpell',   paths: ['midi.item'] },
     { name: 'Seeking Spell',     id: 'SeekingSpell24Id', identifier: 'seeking-spell',     cprId: 'seekingSpell',     paths: ['midi.actor'] },
     { name: 'Subtle Spell',      id: 'SubtleSpell24Idd', identifier: 'subtle-spell',      cprId: 'subtleSpell',      paths: ['midi.item'] },
-    { name: 'Transmuted Spell',  id: 'TransmutedSpl24A', identifier: 'transmuted-spell',  cprId: 'transmutedSpell',  paths: ['midi.item'] }
+    { name: 'Transmuted Spell',  id: 'TransmutedSpl24A', identifier: 'transmuted-spell',  cprId: 'transmutedSpell',  paths: ['midi.item'] },
+    // Twinned needs the caster's two manually-targeted creatures to flow into the workflow, so its
+    // activity must NOT auto-target self (unlike the other metamagics). Matches the official PHB item.
+    { name: 'Twinned Spell',     id: 'TwinnedSpell24Id', identifier: 'twinned-spell',     cprId: 'twinnedSpell',     paths: ['midi.item'], affects: { choice: false, count: '', type: '', special: '' } }
 ];
 
 const folderJson = {
@@ -48,7 +51,7 @@ function makeActivityId() {
     return 'a' + Math.random().toString(36).slice(2, 12).padEnd(15, '0').slice(0, 15);
 }
 
-function buildItemJson({ name, id, identifier, cprId, paths }) {
+function buildItemJson({ name, id, identifier, cprId, paths, affects }) {
     const activityId = 'dnd5eactivity001';
     return {
         name,
@@ -69,7 +72,7 @@ function buildItemJson({ name, id, identifier, cprId, paths }) {
                     range: { units: 'self', override: false, special: '' },
                     target: {
                         template: { contiguous: false, units: 'ft', type: '' },
-                        affects: { choice: false, type: 'self', special: '' },
+                        affects: affects ?? { choice: false, type: 'self', special: '' },
                         override: false,
                         prompt: true
                     },
