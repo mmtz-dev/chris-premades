@@ -20,6 +20,20 @@ That's it. The script resolves its own location, picks up `FOUNDRY_HOST_DATA_DIR
 
 After it runs, reload Foundry in the browser (or back out of and re-enter Manage Modules) and the new files are live.
 
+## Pulling edits back from Foundry (reverse sync)
+
+`deploy-local.sh` only pushes **fork → install**. When you author items the natural way — editing them live in Foundry's UI — those changes land in the *install* LevelDB, not the fork. `sync-from-foundry.sh` pulls them back so they can be committed:
+
+```bash
+# Save & close the world (or quit Foundry) first, so the LevelDB is flushed.
+~/Repos/Foundy-mods/plentiful-resources/sync-from-foundry.sh            # all packs
+~/Repos/Foundy-mods/plentiful-resources/sync-from-foundry.sh cpr-items  # just one pack
+```
+
+It copies the install's `packs/` into the fork, then runs `npm run extractCompendiums` (which strips `_stats`/`sort`/`ownership`/`sourceId`) to regenerate clean `packData/**/*.json`. Review the result with `git diff packData/`. The extract runs on host if `node_modules` is present, otherwise in Docker; pass `--docker` (before the pack name) to force the container.
+
+To protect that work, `deploy-local.sh` **aborts** if the install's packs are newer than the fork's (a sign of unextracted UI edits) — run `sync-from-foundry.sh` first, or pass `--force` to overwrite anyway.
+
 ## When to run it
 
 | You changed… | Run `npm run buildCompendiums` first? | Run `npm run build` first? | Then `./deploy-local.sh`? |
@@ -28,6 +42,7 @@ After it runs, reload Foundry in the browser (or back out of and re-enter Manage
 | `packData/**/*.json` (compendium content) | **yes** | no | yes |
 | `scripts/**/*.js` (CPR runtime code) | no | **yes** | yes |
 | `styles/`, `templates/`, `lang/`, `images/` | no | no | yes |
+| items edited live in Foundry's UI | — | — | **no** — pull back instead: `./sync-from-foundry.sh` |
 
 The script intentionally does not rebuild — it's a deploy step, not a build step. Build via Docker per the project's host conventions:
 
@@ -60,10 +75,10 @@ The fork is a git repo on the `v14` branch with full source (scripts/, packData/
 
 ## Cleanup
 
-Both `deploy-local.sh` and this doc are Fedora-host-specific dev tooling. If you ever push the `v14` branch upstream as a PR, exclude them from the commit:
+`deploy-local.sh`, `sync-from-foundry.sh`, and this doc are Fedora-host-specific dev tooling. If you ever push the `v14` branch upstream as a PR, exclude them from the commit:
 
 ```bash
-git -C ~/Repos/Foundy-mods/plentiful-resources update-index --skip-worktree deploy-local.sh docs/DEPLOY_LOCAL.md
+git -C ~/Repos/Foundy-mods/plentiful-resources update-index --skip-worktree deploy-local.sh sync-from-foundry.sh docs/DEPLOY_LOCAL.md
 ```
 
 Or simply don't `git add` them.
